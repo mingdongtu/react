@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+// render在class 类继承的构造函数中至少有一个
 
 class Square extends React.Component {
     // constructor(){
