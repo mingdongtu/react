@@ -4,37 +4,55 @@ import './index.css';
 
 // render在class 类继承的构造函数中至少有一个
 
-class Square extends React.Component {
-    // constructor(){
-    //   super();
-    //   this.state = {
-    //     value:null
-    //   }
-    // }
-    render() {
-      return (
-        // 这个子组件不拥有自己的状态数据，点击该组件，通知父组件来改变然后再将改变后的数据通过props传递回来
-        <button className="square" onClick={()=>this.props.onClic()}>
-         {this.props.value}
-        </button>
-      );
-    }
+// class Square extends React.Component {
+//     // constructor(){
+//     //   super();
+//     //   this.state = {
+//     //     value:null
+//     //   }
+//     // }
+//     render() {
+//       return (
+//         // 这个子组件不拥有自己的状态数据，点击该组件，通知父组件来改变然后再将改变后的数据通过props传递回来
+//         <button className="square" onClick={()=>this.props.onClic()}>
+//          {this.props.value}
+//         </button>
+//       );
+//     }
+//   }
+
+  //对于只含render方法的组件可以简化为下面的写法
+  function Square(props){
+         return (
+          <button className="square" onClick={props.onClic}>
+                  {props.value}
+               </button>   
+         )
   }
-  
+
   class Board extends React.Component {
     constructor(){
         super();
 // 定义初始状态
         this.state = {
-              squares:Array(9).fill(null)
+              squares:Array(9).fill(null),
+              xIsNext:true
         }
     }
 // 对状态进行修改
     handleClick(i){
       // 我们使用了 .slice() 方法来将之前的数组数据浅拷贝到了一个新的数组中，而不是修改已有的数组
+      // 不改变已有的数据内容可以让我们在需要的时候随时切换回历史数据。
       const squares = this.state.squares.slice();
-      squares[i] = '山竹'
-      this.setState({squares:squares})
+      if(calculateWinner(squares)||squares[i]){  //  已经落子或者有一方已经获胜
+         return  
+      }
+
+      squares[i] = this.state.xIsNext?'X':'O'
+      this.setState({
+        squares:squares,
+        xIsNext:!this.state.xIsNext
+      })
  }
 // 状态渲染在特定组件
     renderSquare(i) {
@@ -43,7 +61,15 @@ class Square extends React.Component {
     // 子组件上绑定事件/函数的事件名是可以随意定义的，只要它不是最终级
 // 对渲染状态的组件的复用
     render() {
-      const status = 'Next player: X';
+      const winner = calculateWinner(this.state.squares);
+      let status ;
+      if(winner){
+           status = 'winner:' + winner;
+      }else{
+           status = 'Next player:' + (this.state.xIsNext?'X':'O');  
+      }
+
+     
       return (
         <div>
           <div className="status">{status}</div>
@@ -83,6 +109,27 @@ class Square extends React.Component {
         </div>
       );
     }
+  }
+  
+  function calculateWinner(squares){
+        const lines = [
+             [0,1,2],
+             [3,4,5],
+             [6,7,8],
+             [0,3,6],
+             [1,4,7],
+             [2,5,8],
+             [0,4,8],
+             [2,4,6]
+        ];
+        for(let i=0;i<lines.length;i++){
+             const [a,b,c] = lines[i];
+             if(squares[a]&&squares[a]===squares[b]&&squares[a]===squares[c]){
+                  return squares[a];  //结束，不会执行后面的return null；
+             }
+        }
+        return null
+
   }
   
   
